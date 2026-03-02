@@ -1079,12 +1079,14 @@ window.SubscriptionsSmartQuery = (function () {
     return normalized || fallback || '';
   };
 
-  const renderEditableField = (kind, idx, field, value, placeholder) => {
+  const renderEditableField = (kind, idx, field, value, placeholder, isPrimary = false) => {
     const text = normalizeText(value);
-    const cls = text ? '' : ' is-empty';
+    const classes = ['dpr-inline-field'];
+    if (!text) classes.push('is-empty');
+    if (isPrimary) classes.push('is-primary');
     return `
       <div
-        class="dpr-inline-field${cls}"
+        class="${classes.join(' ')}"
         data-action="edit-inline-field"
         data-kind="${escapeHtml(kind)}"
         data-index="${idx}"
@@ -1143,8 +1145,15 @@ window.SubscriptionsSmartQuery = (function () {
     return `
       <div class="${wrapperClass}">
         <div class="dpr-cloud-item-body">
-          ${renderEditableField(kind, idx, meta.primary, item[meta.primary], meta.primaryPlaceholder)}
-          ${renderEditableField(kind, idx, meta.secondary, item[meta.secondary], meta.secondaryPlaceholder)}
+          ${renderEditableField(kind, idx, meta.primary, item[meta.primary], meta.primaryPlaceholder, true)}
+          ${renderEditableField(
+            kind,
+            idx,
+            meta.secondary,
+            item[meta.secondary],
+            meta.secondaryPlaceholder,
+            false,
+          )}
         </div>
         <button
           type="button"
@@ -1177,8 +1186,21 @@ window.SubscriptionsSmartQuery = (function () {
             data-kind="${realKind}"
             data-index="${idx}"
           >
-            ${renderEditableField(realKind, idx, meta.primary, item[meta.primary], meta.primaryPlaceholder)}
-            ${renderEditableField(realKind, idx, meta.secondary, item[meta.secondary], meta.secondaryPlaceholder)}
+            ${renderEditableField(
+              realKind,
+              idx,
+              meta.primary,
+              item[meta.primary],
+              meta.primaryPlaceholder,
+              true,
+            )}
+            ${renderEditableField(
+              realKind,
+              idx,
+              meta.secondary,
+              item[meta.secondary],
+              meta.secondaryPlaceholder,
+            )}
           </div>
         `;
       })
@@ -1272,6 +1294,7 @@ window.SubscriptionsSmartQuery = (function () {
               textField,
               text,
               options.defaultPrimaryPlaceholder || '（英文）',
+              true,
             )}
             ${renderEditableField(
               kind,
@@ -1279,6 +1302,7 @@ window.SubscriptionsSmartQuery = (function () {
               descField,
               desc || item[descFallbackField] || item.source || '',
               defaultDesc || '（无说明）',
+              false,
             )}
           </span>
         </label>
